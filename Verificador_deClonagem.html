@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verificador Seguro de Clonagem (Demo)</title>
+  <meta name="description" content="Demo educativa que ajuda a estimar risco de clonagem de cartão sem coletar dados sensíveis." />
+  <style>
+    /* ===== Reset e base ===== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: #e5e7eb; background: #0b1220; line-height: 1.5; -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+
+    /* ===== Layout util ===== */
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+    .grid { display: grid; gap: 24px; }
+    @media (min-width: 900px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+    /* ===== Header ===== */
+    header {
+      position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(8px); background: rgba(11,18,32,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brandicon { height:36px; width:36px; display:grid; place-items:center; border-radius:12px; background: rgba(16,185,129,0.18); outline: 1px solid rgba(16,185,129,0.5); }
+    .subtitle { color:#94a3b8; font-size: 12px; margin-top: -4px; }
+
+    /* ===== Badges & small UI ===== */
+    .badge { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; font-size:12px; border-radius:999px; border:1px solid rgba(16,185,129,0.4); background: rgba(16,185,129,0.12); color:#a7f3d0; }
+
+    /* ===== Cards ===== */
+    .card { background: rgba(13,23,41,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; }
+    .card-h { padding:18px 18px 0 18px; }
+    .card-c { padding:18px; }
+    .card-f { padding:18px; display:flex; gap:12px; justify-content: space-between; align-items:center; }
+
+    /* ===== Inputs ===== */
+    label.small { font-size:12px; color:#cbd5e1; display:block; margin-bottom:6px; }
+    .input, select, .checkbox { background: rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.12); color:#e5e7eb; border-radius: 10px; padding:10px 12px; width: 100%; outline: none; }
+    .input:focus, select:focus { border-color: rgba(94,234,212,0.5); box-shadow: 0 0 0 3px rgba(94,234,212,0.18); }
+    .row { display:grid; gap:14px; }
+    @media (min-width:700px){ .row-3 { grid-template-columns: repeat(3, 1fr); } }
+
+    /* Switch */
+    .switch { position: relative; display: inline-flex; align-items:center; gap:10px; }
+    .switch input { appearance: none; width: 44px; height: 24px; background:#1f2937; border-radius: 999px; position: relative; outline:none; transition: background .25s ease; border:1px solid rgba(255,255,255,0.1); }
+    .switch input::after { content:""; position:absolute; top:50%; transform: translateY(-50%); left:2px; width: 18px; height: 18px; border-radius: 999px; background: white; transition: left .25s ease; }
+    .switch input:checked { background: #10b981; }
+    .switch input:checked::after { left:24px; }
+    .switch small { color:#cbd5e1; font-size:12px; }
+
+    /* Check grid */
+    .symptom { display:flex; align-items:center; gap:10px; border:1px solid rgba(255,255,255,0.12); padding:10px; border-radius: 12px; cursor:pointer; transition: background .2s, border-color .2s; }
+    .symptom input { width:16px; height:16px; accent-color:#10b981; }
+    .symptom.active { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.5); }
+
+    /* Progress */
+    .progress-wrap { position: relative; height: 12px; background: rgba(255,255,255,0.1); border-radius:999px; overflow: hidden; }
+    .progress-bar { position:absolute; inset:0; width: 0%; background: linear-gradient(90deg, rgba(16,185,129,0.75), rgba(250,204,21,0.75), rgba(239,68,68,0.8)); mix-blend: screen; }
+
+    /* Buttons */
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius: 10px; border: 1px solid transparent; cursor:pointer; font-weight:600; }
+    .btn-primary { background:#0ea5e9; color:#04121f; }
+    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+    .btn-ghost { background: transparent; border:1px solid rgba(255,255,255,0.2); color:#d1d5db; }
+
+    /* Accent blocks */
+    .block { border-radius: 12px; padding:14px; border:1px solid rgba(255,255,255,0.1); background: rgba(2,6,23,0.5); }
+    .block.success { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.12); color:#d1fae5; }
+
+    /* Footer */
+    footer { color:#94a3b8; font-size: 12px; }
+
+    /* Decorative glow */
+    .bg-glow { position: fixed; inset: -20% -10% auto -10%; height: 360px; z-index: -1; filter: blur(60px); opacity: .55; background: radial-gradient(700px 180px at 50% 0, rgba(16,185,129,0.28), rgba(56,189,248,0.28), rgba(99,102,241,0.28), transparent 70%); }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <header>
+    <div class="container" style="padding:14px 16px; display:flex; align-items:center; justify-content:space-between;">
+      <div class="brand">
+        <div class="brandicon">💳</div>
+        <div>
+          <div style="font-weight:700; letter-spacing:.2px">Verificador Seguro de Clonagem</div>
+          <div class="subtitle">Demo educativa — não informe número de cartão</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="badge">✨ Malbertin</span>
+        <label class="switch">
+          <small>Modo privado</small>
+          <input id="privateSwitch" type="checkbox" checked />
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding: 24px 0 28px 0;">
+    <div class="grid grid-2">
+      <!-- LEFT: Checker -->
+      <section class="card">
+        <div class="card-h"><h2 style="display:flex; align-items:center; gap:8px; font-size: 18px; font-weight:700;">🛡️ Verificação rápida (sem dados sensíveis)</h2></div>
+        <div class="card-c">
+          <!-- Sintomas -->
+          <div id="symptomsGrid" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));"></div>
+
+          <!-- Campos auxiliares -->
+          <div class="row row-3" style="margin-top: 16px;">
+            <div>
+              <label class="small" for="last4">Últimos 4 dígitos (opcional)</label>
+              <input id="last4" class="input" inputmode="numeric" maxlength="4" placeholder="••••" />
+              <div class="subtitle" style="margin-top:6px">Não coletamos nem enviamos essa informação.</div>
+            </div>
+            <div>
+              <label class="small" for="bank">Seu banco (opcional)</label>
+              <select id="bank">
+                <option>(Selecione)</option>
+                <option>Banco do Brasil</option>
+                <option>Caixa Econômica</option>
+                <option>Bradesco</option>
+                <option>Itaú</option>
+                <option>Santander</option>
+                <option>Nubank</option>
+                <option>Inter</option>
+                <option>Sicoob</option>
+                <option>Sicredi</option>
+                <option>C6 Bank</option>
+              </select>
+            </div>
+            <div>
+              <label class="small" for="dt">Última transação suspeita (opcional)</label>
+              <input id="dt" class="input" type="datetime-local" />
+            </div>
+          </div>
+
+          <!-- Risco / progresso -->
+          <div style="margin-top: 18px; display:grid; gap:10px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div style="display:flex; align-items:center; gap:8px; color:#cbd5e1; font-size: 14px;">
+                <span id="tierIcon" aria-hidden="true">🟢</span>
+                <span>Risco estimado</span>
+              </div>
+              <div style="font-size:14px; font-weight:600;" id="scoreLabel">0% • Baixo</div>
+            </div>
+            <div class="progress-wrap"><div id="progress" class="progress-bar"></div></div>
+            <div class="subtitle" style="display:flex; gap:8px; align-items:flex-start;">
+              <span>❔</span>
+              <span>Este resultado é indicativo, baseado nos sinais marcados. Para confirmação oficial, use o app/telefone do seu banco.</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-f">
+          <div style="display:flex; gap:12px;">
+            <button id="analyzeBtn" class="btn btn-primary">✨ Analisar agora</button>
+            <button id="clearBtn" class="btn btn-ghost">Limpar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Action Plan -->
+      <section class="card">
+        <div class="card-h"><h2 style="display:flex; align-items:center; gap:8px; font-size: 18px; font-weight:700;">🔒 Plano de ação recomendado</h2></div>
+        <div class="card-c">
+          <div id="actionsLow" class="block" hidden>
+            <h3 style="margin:0 0 8px 0; font-weight:700;">Risco baixo — monitoramento</h3>
+            <ul style="margin:0; padding-left:18px; color:#d1d5db;">
+              <li>Ative alertas de transação no app do banco</li>
+              <li>Revise seu extrato dos últimos 7 dias</li>
+              <li>Desconfie de ligações/SMS pedindo códigos ou senhas</li>
+              <li>Mantenha seu celular e app bancário atualizados</li>
+            </ul>
+          </div>
+
+          <div id="actionsMid" class="block" hidden>
+            <h3 style="margin:0 0 8px 0; font-weight:700;">Risco moderado — prevenção ativa</h3>
+            <ul style="margin:0; padding-left:18px; color:#d1d5db;">
+              <li>Bloqueie temporariamente o cartão pelo app</li>
+              <li>Revise e conteste cobranças desconhecidas</li>
+              <li>Altere a senha do app e verifique dispositivos confiáveis</li>
+              <li>Ative 2FA e limite de compras online</li>
+            </ul>
+          </div>
+
+          <div id="actionsHigh" class="block success" hidden>
+            <h3 style="margin:0 0 8px 0; font-weight:700;">Risco alto — ação imediata</h3>
+            <ul style="margin:0; padding-left:18px;">
+              <li>Bloqueie IMEDIATAMENTE o cartão (app do banco)</li>
+              <li>Ligue para o número oficial do seu banco (atrás do cartão)</li>
+              <li>Conteste compras e solicite um novo cartão</li>
+              <li>Se houve furto/roubo, registre um BO</li>
+            </ul>
+          </div>
+
+          <div class="block" style="margin-top:14px;">
+            <h4 style="margin:0 0 6px 0; display:flex; gap:8px; align-items:center;">📞 Contato SEGURO com o banco</h4>
+            <ul style="margin:0; padding-left:18px; color:#d1d5db;">
+              <li>Nunca use números enviados por SMS/WhatsApp; acesse o app oficial ou o site do banco.</li>
+              <li>Não compartilhe códigos, senhas ou dados do cartão.</li>
+              <li>Desconfie de “suporte remoto” ao celular/computador.</li>
+            </ul>
+          </div>
+
+          <div class="block success" style="margin-top:14px;">
+            <h4 style="margin:0 0 6px 0; display:flex; gap:8px; align-items:center;">🔔 Privacidade em primeiro lugar</h4>
+            <p style="margin:0;">Este site demonstrativo não coleta número de cartão nem dados sensíveis. Use apenas informações genéricas.</p>
+          </div>
+        </div>
+        <div class="card-f" style="justify-content:flex-end;">
+          <button class="btn btn-ghost" onclick="window.print()">🖨️ Imprimir checklist</button>
+        </div>
+      </section>
+    </div>
+
+    <footer style="margin-top:18px;">
+      <p style="margin:0 0 4px 0; color:#cbd5e1;">⚠️ Aviso importante</p>
+      <p style="margin:0;">Esta é uma demo educativa para ajudar você a avaliar sinais de possível clonagem. A confirmação definitiva depende do seu banco. Nunca compartilhe dados do cartão aqui nem em lugar algum fora dos canais oficiais.</p>
+    </footer>
+  </main>
+
+  <script>
+    // ===== Dados =====
+    const SYMPTOMS = [
+      { id: "unknown-charges", label: "Cobranças que você não reconhece", weight: 28 },
+      { id: "sms-codes", label: "SMS/códigos de verificação sem você comprar", weight: 20 },
+      { id: "declines", label: "Compras recusadas sem motivo aparente", weight: 12 },
+      { id: "dup-transactions", label: "Transações duplicadas no extrato", weight: 14 },
+      { id: "geo-mismatch", label: "Uso em cidade/país diferente do seu", weight: 22 },
+      { id: "phishing-contact", label: "Contato suspeito se passando pelo banco", weight: 16 },
+      { id: "card-with-you", label: "Cartão com você, mas compras online aparecem", weight: 18 },
+      { id: "lost-stolen", label: "Perda/roubo do cartão", weight: 30 },
+    ];
+
+    // ===== Estado =====
+    const state = {
+      privateMode: true,
+      last4: "",
+      symptoms: Object.fromEntries(SYMPTOMS.map(s => [s.id, false]))
+    };
+
+    // ===== UI refs =====
+    const grid = document.getElementById('symptomsGrid');
+    const progress = document.getElementById('progress');
+    const scoreLabel = document.getElementById('scoreLabel');
+    const tierIcon = document.getElementById('tierIcon');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const privateSwitch = document.getElementById('privateSwitch');
+    const last4 = document.getElementById('last4');
+
+    const actionsLow = document.getElementById('actionsLow');
+    const actionsMid = document.getElementById('actionsMid');
+    const actionsHigh = document.getElementById('actionsHigh');
+
+    // ===== Render sintomas =====
+    function renderSymptoms() {
+      grid.innerHTML = '';
+      SYMPTOMS.forEach(s => {
+        const id = `cb-${s.id}`;
+        const wrap = document.createElement('label');
+        wrap.className = 'symptom';
+        wrap.htmlFor = id;
+        if (state.symptoms[s.id]) wrap.classList.add('active');
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = id;
+        cb.checked = state.symptoms[s.id];
+        cb.addEventListener('change', () => {
+          state.symptoms[s.id] = cb.checked;
+          if (cb.checked) wrap.classList.add('active'); else wrap.classList.remove('active');
+          updateScore();
+        });
+
+        const span = document.createElement('span');
+        span.textContent = s.label;
+
+        wrap.appendChild(cb);
+        wrap.appendChild(span);
+        grid.appendChild(wrap);
+      });
+    }
+
+    // ===== Cálculo risco =====
+    function calcScore() {
+      const sum = SYMPTOMS.reduce((acc, s) => acc + (state.symptoms[s.id] ? s.weight : 0), 0);
+      return Math.min(100, Math.round(sum));
+    }
+
+    function tier(score) {
+      if (score >= 70) return { label: 'Alto', icon: '🔴' };
+      if (score >= 30) return { label: 'Moderado', icon: '🟡' };
+      return { label: 'Baixo', icon: '🟢' };
+    }
+
+    function updateScore() {
+      const score = calcScore();
+      const t = tier(score);
+      progress.style.width = score + '%';
+      scoreLabel.textContent = `${score}% • ${t.label}`;
+      tierIcon.textContent = t.icon;
+
+      // ações
+      actionsLow.hidden = !(score < 30);
+      actionsMid.hidden = !(score >= 30 && score < 70);
+      actionsHigh.hidden = !(score >= 70);
+    }
+
+    // ===== Eventos gerais =====
+    privateSwitch.addEventListener('change', () => {
+      state.privateMode = privateSwitch.checked;
+      last4.type = state.privateMode ? 'password' : 'text';
+      last4.placeholder = state.privateMode ? '••••' : '1234';
+    });
+
+    last4.addEventListener('input', () => {
+      // mantém apenas dígitos e limita a 4
+      last4.value = (last4.value.replace(/\D/g, '').slice(0,4));
+      state.last4 = last4.value;
+    });
+
+    analyzeBtn.addEventListener('click', async () => {
+      analyzeBtn.disabled = true;
+      analyzeBtn.textContent = 'Analisando…';
+      // mera animação/feedback
+      await new Promise(r => setTimeout(r, 900));
+      updateScore();
+      analyzeBtn.disabled = false;
+      analyzeBtn.textContent = '✨ Analisar agora';
+    });
+
+    clearBtn.addEventListener('click', () => {
+      SYMPTOMS.forEach(s => state.symptoms[s.id] = false);
+      last4.value = '';
+      state.last4 = '';
+      document.getElementById('bank').selectedIndex = 0;
+      document.getElementById('dt').value = '';
+      renderSymptoms();
+      updateScore();
+    });
+
+    // ===== Init =====
+    renderSymptoms();
+    updateScore();
+    last4.type = 'password';
+  </script>
+</body>
+</html>
