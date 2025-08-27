@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Site Profissional — Desenvolvimento Web</title>
+  <meta name="description" content="Página institucional moderna, acessível e responsiva, construída em HTML5, CSS e JavaScript puro." />
+  <meta name="robots" content="index,follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Site Profissional — Desenvolvimento Web" />
+  <meta property="og:description" content="Página institucional moderna, acessível e responsiva." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/img/hero-placeholder.svg" />
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script defer src="assets/js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+  <header class="site-header">
+    <div class="container header__row">
+      <a class="brand" href="#">
+        <img src="assets/img/logo.svg" alt="Logotipo" width="36" height="36" />
+        <span>DevWeb</span>
+      </a>
+
+      <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">
+        <span class="nav-toggle__box" aria-hidden="true"></span>
+      </button>
+
+      <nav id="menu" class="nav" aria-label="Menu principal">
+        <ul>
+          <li><a href="#inicio">Início</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#servicos">Serviços</a></li>
+          <li><a href="#contato">Contato</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section id="inicio" class="hero container">
+      <div class="hero__copy">
+        <h1>Sites rápidos, acessíveis e responsivos</h1>
+        <p>Implementação simples, sem dependências, seguindo boas práticas de produção (SEO, A11y, performance).</p>
+        <div class="cta">
+          <a class="btn" href="#servicos">Ver serviços</a>
+          <a class="btn btn--outline" href="#contato">Fale com a gente</a>
+        </div>
+      </div>
+      <div class="hero__media">
+        <img src="assets/img/hero-placeholder.svg" alt="Ilustração de desenvolvimento web" />
+      </div>
+    </section>
+
+    <section id="sobre" class="section container">
+      <header class="section__header">
+        <h2>Sobre</h2>
+        <p>Projeto base em HTML5 + CSS + JS com estrutura de pastas pronta para produção.</p>
+      </header>
+      <div class="grid two">
+        <article class="card">
+          <h3>Padrões modernos</h3>
+          <p>Sem frameworks, sem build: só o necessário para desempenho e manutenção no longo prazo.</p>
+        </article>
+        <article class="card">
+          <h3>Acessibilidade</h3>
+          <p>Semântica correta, navegação por teclado, contraste adequado e preferências de movimento respeitadas.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="servicos" class="section section--muted">
+      <div class="container">
+        <header class="section__header">
+          <h2>O que fazemos</h2>
+          <p>Alguns blocos comuns para um site institucional.</p>
+        </header>
+
+        <div class="grid three">
+          <article class="card">
+            <h3>Landing Pages</h3>
+            <p>Páginas enxutas para conversão, com SEO e tempo de carregamento otimizados.</p>
+          </article>
+          <article class="card">
+            <h3>Sites Institucionais</h3>
+            <p>Estrutura clara, navegação simples e conteúdo bem organizado.</p>
+          </article>
+          <article class="card">
+            <h3>Componentes Reutilizáveis</h3>
+            <p>Botões, cartões, cabeçalhos e rodapés com estilos consistentes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contato" class="section container">
+      <header class="section__header">
+        <h2>Contato</h2>
+        <p>Use o formulário abaixo para enviar uma mensagem.</p>
+      </header>
+
+      <form id="form-contato" class="form" novalidate>
+        <div class="field">
+          <label for="nome">Nome</label>
+          <input id="nome" name="nome" type="text" placeholder="Seu nome" required />
+          <small class="error" id="err-nome"></small>
+        </div>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" placeholder="voce@exemplo.com" required />
+          <small class="error" id="err-email"></small>
+        </div>
+        <div class="field">
+          <label for="mensagem">Mensagem</label>
+          <textarea id="mensagem" name="mensagem" rows="5" placeholder="Como podemos ajudar?" required></textarea>
+          <small class="error" id="err-mensagem"></small>
+        </div>
+        <button class="btn" type="submit">Enviar</button>
+        <p class="form__status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer__grid">
+      <p>© <span id="ano"></span> DevWeb. Todos os direitos reservados.</p>
+      <ul class="social">
+        <li><a href="#" aria-label="Instagram">Instagram</a></li>
+        <li><a href="#" aria-label="WhatsApp">WhatsApp</a></li>
+        <li><a href="#" aria-label="GitHub">GitHub</a></li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>
